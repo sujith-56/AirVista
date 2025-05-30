@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flight Chatbot Widget</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+    }
+
+    /* Chatbot Iframe */
+    #chatWidget {
+      display: none;
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 380px;
+      height: 540px;
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      background: white;
+      transform: translateY(50px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    #chatWidget.open {
+      display: block;
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Chat Bubble */
+    #chatBubble {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #4CAF50;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #chatBubble img {
+      width: 30px;
+      height: 30px;
+    }
+
+    /* Footer Buttons */
+    .chat-footer-buttons {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 90px;
+      z-index: 10000;
+      gap: 10px;
+    }
+
+    .chat-footer-buttons button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2196F3;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .chat-footer-buttons button:hover {
+      background-color: #1976D2;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🔘 Chat Bubble Button -->
+  <button id="chatBubble" title="Chat with Assistant">
+    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712039.png" alt="Chat" />
+  </button>
+
+  <!-- 💬 Chatbot Iframe -->
+  <iframe id="chatWidget" src="chatbot-widget.html"></iframe>
+
+  <!-- ✅ View Ticket + 🔄 New Booking Buttons -->
+  <div class="chat-footer-buttons" id="actionButtons">
+    <button onclick="window.location.href='/chat/download-ticket'">🎫 View Ticket</button>
+    <button onclick="resetBooking()">🔄 New Booking</button>
+  </div>
+
+  <!-- 🎵 Open Sound -->
+  <audio id="openSound" preload="auto">
+    <source src="https://www.soundjay.com/buttons/sounds/button-29.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const bubble = document.getElementById('chatBubble');
+    const widget = document.getElementById('chatWidget');
+    const actionButtons = document.getElementById('actionButtons');
+    const openSound = document.getElementById('openSound');
+
+    bubble.addEventListener('click', () => {
+      const isOpen = widget.classList.contains('open');
+      if (!isOpen) {
+        openSound.play();
+      }
+      widget.classList.toggle('open');
+      actionButtons.style.display = isOpen ? 'none' : 'flex';
+    });
+
+    async function resetBooking() {
+      try {
+        await fetch('/chat/reset', { method: 'POST' });
+        location.reload();
+      } catch (err) {
+        alert('❌ Error resetting session.');
+      }
+    }
+  </script>
+
+</body>
+</html>

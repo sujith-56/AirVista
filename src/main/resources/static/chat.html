@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flight Booking Chatbot</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    #chatbox {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .message {
+      padding: 12px 16px;
+      margin: 10px 0;
+      border-radius: 10px;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease-in-out;
+      max-width: 80%;
+    }
+
+    .user {
+      background-color: #daf1da;
+      text-align: right;
+      margin-left: auto;
+    }
+
+    .bot {
+      background-color: #e8e8e8;
+      text-align: left;
+      margin-right: auto;
+    }
+
+    #inputArea {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    #inputArea input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    #inputArea button {
+      padding: 12px 20px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1rem;
+    }
+
+    #inputArea button:hover {
+      background-color: #45a049;
+    }
+
+    button:focus {
+      outline: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<!-- Add this inside <body>, before the #chatbox -->
+<div style="text-align: center; margin-bottom: 10px;">
+  <img src="https://cdn-icons-png.flaticon.com/512/4712/4712039.png" alt="Bot Avatar" width="80" />
+  <h2>Flight Booking Assistant</h2>
+</div>
+
+  <div id="chatbox">
+    <div id="chatlog"></div>
+   <div id="inputArea">
+  <input type="text" id="userInput" placeholder="Type or speak your message..." />
+  <button onclick="sendMessage()">Send</button>
+  <button onclick="startVoice()" title="Speak" style="background-color: #2196F3;">🎤</button>
+</div>
+
+  </div>
+
+  <script>
+    const input = document.getElementById('userInput');
+    input.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    async function sendMessage() {
+      const message = input.value.trim();
+      if (!message) return;
+
+      addMessage(message, 'user');
+      input.value = '';
+      input.focus();
+
+      try {
+        const response = await fetch('http://localhost:8080/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(message)
+        });
+
+        if (!response.ok) throw new Error('Error from backend');
+
+        const reply = await response.text();
+        addMessage(reply, 'bot');
+
+        if (reply.includes('✅ Booking complete')) {
+          showPostBookingOptions();
+        }
+      } catch (error) {
+        addMessage('❌ Error: Could not reach backend.', 'bot');
+      }
+    }
+
+    function addMessage(text, sender) {
+      const chatlog = document.getElementById('chatlog');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message ' + sender;
+      messageDiv.innerText = text;
+      chatlog.appendChild(messageDiv);
+      chatlog.scrollTop = chatlog.scrollHeight;
+    }
+
+    function showPostBookingOptions() {
+      const chatlog = document.getElementById('chatlog');
+      const optionsDiv = document.createElement('div');
+      optionsDiv.style.marginTop = '15px';
+      optionsDiv.style.textAlign = 'center';
+
+      const viewBtn = document.createElement('button');
+      viewBtn.innerText = '🎫 View Ticket';
+      viewBtn.style.marginRight = '10px';
+      viewBtn.onclick = () => window.location.href = '/chat/download-ticket';
+
+      const restartBtn = document.createElement('button');
+      restartBtn.innerText = '🔄 New Booking';
+     // restartBtn.onclick = () => location.reload();
+      restartBtn.onclick = async () => {
+    	  await fetch('/chat/reset', { method: 'POST' });
+    	  location.reload(); // Now reset first, then reload
+    	};
+
+      [viewBtn, restartBtn].forEach(btn => {
+        btn.style.marginTop = '10px';
+        btn.style.padding = '10px 15px';
+        btn.style.borderRadius = '6px';
+        btn.style.border = 'none';
+        btn.style.cursor = 'pointer';
+        btn.style.backgroundColor = '#2196F3';
+        btn.style.color = 'white';
+        btn.style.marginRight = '10px';
+        btn.onmouseover = () => btn.style.backgroundColor = '#1976D2';
+        btn.onmouseout = () => btn.style.backgroundColor = '#2196F3';
+      });
+
+      optionsDiv.appendChild(viewBtn);
+      optionsDiv.appendChild(restartBtn);
+      chatlog.appendChild(optionsDiv);
+    }
+    function startVoice() {
+    	  const inputField = document.getElementById('userInput');
+
+    	  // Check if the browser supports speech recognition
+    	  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    	  if (!SpeechRecognition) {
+    	    alert('Voice input is not supported in this browser.');
+    	    return;
+    	  }
+
+    	  const recognition = new SpeechRecognition();
+    	  recognition.lang = 'en-US';
+    	  recognition.interimResults = false;
+    	  recognition.maxAlternatives = 1;
+
+    	  recognition.start();
+
+    	  recognition.onresult = function(event) {
+    	    const transcript = event.results[0][0].transcript;
+    	    inputField.value = transcript;
+    	    sendMessage(); // Automatically send after speaking
+    	  };
+
+    	  recognition.onerror = function(event) {
+    	    console.error('Speech recognition error:', event.error);
+    	    alert('Voice recognition error: ' + event.error);
+    	  };
+
+    	  recognition.onspeechend = function() {
+    	    recognition.stop();
+    	  };
+    	}
+    
+    
+
+    addMessage("👋 Hi! How can I assist you with booking a flight today?", "bot");
+    
+  </script>
+</body>
+</html>

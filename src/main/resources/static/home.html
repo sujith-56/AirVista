@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Website with Chatbot</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f7fa;
+    }
+
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    main {
+      padding: 30px;
+      text-align: center;
+    }
+
+    /* Chatbot iframe style */
+    #flightChatbot {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 380px;
+      height: 520px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Welcome to My Travel Site</h1>
+  </header>
+
+  <main>
+    <p>Use the floating chat below to book your flights instantly with our virtual assistant.</p>
+  </main>
+
+  <!-- 🔽 Embedded Chatbot Widget -->
+  <iframe id="flightChatbot" src="chatbot-widget.html"></iframe>
+
+</body>
+</html>

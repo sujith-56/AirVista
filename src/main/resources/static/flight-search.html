@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flight Search - Sujith's App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f0f2f5;
+      padding-top: 50px;
+    }
+    .flight-card {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      margin-bottom: 20px;
+      padding: 20px;
+      background-color: white;
+    }
+    .btn-primary {
+      width: 100%;
+    }
+    table {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th {
+      background-color: #0d6efd;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1 class="text-center mb-4">✈️ Flight Search</h1>
+
+  <div class="card p-4 shadow">
+    <form id="flightForm">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="origin" class="form-label">Origin Airport Code</label>
+          <input type="text" id="origin" class="form-control" placeholder="e.g., DEL" required>
+        </div>
+        <div class="col-md-6">
+          <label for="destination" class="form-label">Destination Airport Code</label>
+          <input type="text" id="destination" class="form-control" placeholder="e.g., BOM" required>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="date" class="form-label">Departure Date</label>
+          <input type="date" id="date" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <label for="adults" class="form-label">Number of Adults</label>
+          <input type="number" id="adults" class="form-control" min="1" value="1" required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Search Flights</button>
+    </form>
+  </div>
+
+  <div id="flightResults" class="mt-5"></div>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="bookingForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bookingModalLabel">Book Flight</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Flight Number:</strong> <span id="modalFlightNumber"></span></p>
+          <p><strong>Departure Time:</strong> <span id="modalDepartureTime"></span></p>
+          <p><strong>Arrival Time:</strong> <span id="modalArrivalTime"></span></p>
+          <p><strong>Duration:</strong> <span id="modalDuration"></span></p>
+          <p><strong>Price (INR):</strong> ₹<span id="modalPrice"></span></p>
+          <!-- Additional booking fields can be added here -->
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Confirm Booking</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('flightForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const origin = document.getElementById('origin').value;
+    const destination = document.getElementById('destination').value;
+    const date = document.getElementById('date').value;
+    const adults = document.getElementById('adults').value;
+
+    const apiUrl = `/api/flights/search?origin=${origin}&destination=${destination}&date=${date}&adults=${adults}`;
+
+    try {
+      const response = await fetch(apiUrl);
+      const flights = await response.json();
+
+      let resultHTML = '';
+
+      if (flights.length > 0) {
+        resultHTML = `
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Flight Number</th>
+                <th>Departure Time</th>
+                <th>Arrival Time</th>
+                <th>Duration</th>
+                <th>Price (INR)</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        flights.forEach((flight, index) => {
+          resultHTML += `
+            <tr>
+              <td>${flight.flightNumber}</td>
+              <td>${new Date(flight.departureTime).toLocaleString()}</td>
+              <td>${new Date(flight.arrivalTime).toLocaleString()}</td>
+              <td>${flight.duration}</td>
+              <td>₹${flight.price}</td>
+              <td><button class="btn btn-sm btn-outline-primary" onclick="openBookingModal(${index})">Book</button></td>
+            </tr>
+          `;
+        });
+
+        resultHTML += `
+            </tbody>
+          </table>
+        `;
+      } else {
+        resultHTML = `<div class="alert alert-warning text-center">No flights found for the selected criteria.</div>`;
+      }
+
+      document.getElementById('flightResults').innerHTML = resultHTML;
+
+      // Store flights data for modal access
+      window.flightsData = flights;
+    } catch (error) {
+      console.error('Error fetching flights:', error);
+      document.getElementById('flightResults').innerHTML =
+        `<div class="alert alert-danger text-center">Error fetching flights. Please try again later.</div>`;
+    }
+  });
+
+  function openBookingModal(index) {
+    const flight = window.flightsData[index];
+    document.getElementById('modalFlightNumber').textContent = flight.flightNumber;
+    document.getElementById('modalDepartureTime').textContent = new Date(flight.departureTime).toLocaleString();
+    document.getElementById('modalArrivalTime').textContent = new Date(flight.arrivalTime).toLocaleString();
+    document.getElementById('modalDuration').textContent = flight.duration;
+    document.getElementById('modalPrice').textContent = flight.price;
+
+    const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+    bookingModal.show();
+  }
+
+  document.getElementById('bookingForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    // Implement booking confirmation logic here
+    alert('Booking confirmed!');
+    const bookingModal = bootstrap.Modal.getInstance(document.getElementById('bookingModal'));
+    bookingModal.hide();
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

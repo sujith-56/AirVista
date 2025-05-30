@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+        }
+        h2 {
+            text-align: center;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .book-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .book-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Booking Form</h2>
+    <form id="bookingForm">
+        <input type="text" id="passengerName" placeholder="Full Name" required>
+        <input type="email" id="email" placeholder="Email Address" required>
+        <input type="number" id="seats" placeholder="Number of Seats" required>
+        <button type="submit" class="book-btn">Confirm Booking</button>
+    </form>
+</div>
+
+<script>
+    const bookingForm = document.getElementById('bookingForm');
+
+    // Check if selected flight data is available in localStorage
+    const selectedFlight = JSON.parse(localStorage.getItem('selectedFlight'));
+
+    if (!selectedFlight) {
+        alert('No flight selected. Please go back and select a flight.');
+        window.location.href = 'index.html'; // Redirect back to the search page if no flight is selected
+    }
+
+    // Display flight information (optional - you can show this info on the booking page)
+    console.log(selectedFlight);
+
+    bookingForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const passengerName = document.getElementById('passengerName').value;
+        const email = document.getElementById('email').value;
+        const seats = document.getElementById('seats').value;
+
+        const bookingData = {
+            flightId: selectedFlight.flightId,
+            origin: selectedFlight.origin,
+            destination: selectedFlight.destination,
+            departureDate: selectedFlight.departureTime,
+            passengerName: passengerName,
+            email: email,
+            seats: seats
+        };
+
+        try {
+            const response = await fetch('/api/booking/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookingData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Booking failed');
+            }
+
+            const result = await response.json();
+            alert('Booking successful! Booking ID: ' + result.id);
+        } catch (error) {
+            console.error('Error booking flight:', error);
+            alert('Error booking flight. Please try again later.');
+        }
+    });
+</script>
+
+</body>
+</html>
