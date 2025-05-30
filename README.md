@@ -65,7 +65,7 @@ AirVista uses **Gemini API** to enable conversational booking. Users can:
 Each successful booking sends a downloadable PDF ticket via email, containing:
 - Passenger info
 - Flight details
-- Price
+- QR code (contains passenger details)
 
 ---
 
