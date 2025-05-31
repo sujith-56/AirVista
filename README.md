@@ -60,6 +60,27 @@ AirVista uses **Gemini API** to enable conversational booking. Users can:
 
 ---
 
+
+## 🔐 Environmental Variables (application.properties)
+- spring.application.name=Flight-
+- spring.datasource.url=jdbc:mysql://localhost:3306/airvista
+- spring.datasource.username=root
+- spring.datasource.password=your_db_password
+- spring.jpa.hibernate.ddl-auto=update
+- spring.jpa.show-sql=true
+
+#Api keys details
+- amadeus.api.key=YOUR_API_KEY
+- amadeus.api.secret=YOUR_SECRET
+
+#Sending mail
+- spring.mail.host=smtp.gmail.com
+- spring.mail.port=587
+- spring.mail.username=youremail@example.com
+- spring.mail.password=yourpassword
+- spring.mail.properties.mail.smtp.auth=true
+- spring.mail.properties.mail.smtp.starttls.enable=true
+
 ## 📄 PDF Ticket Sample
 
 Each successful booking sends a downloadable PDF ticket via email, containing:
