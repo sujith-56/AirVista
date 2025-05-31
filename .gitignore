@@ -1,33 +1,55 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# 🌱 AirVista - Spring Boot Project Git Ignore Template
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# === Maven Build ===
+/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
 
-### IntelliJ IDEA ###
-.idea
+# === IntelliJ IDEA ===
+.idea/
 *.iws
 *.iml
 *.ipr
+out/
 
-### NetBeans ###
+# === Eclipse ===
+*.classpath
+*.project
+*.settings/
+bin/
+
+# === NetBeans ===
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+# === VS Code ===
 .vscode/
+
+# === Logs ===
+*.log
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Environment Secrets ===
+*.env
+*.secret
+.env.*
+.env.*.local
+application.properties
+src/main/resources/application.properties
+
+# === Backup & Temp Files ===
+*.bak
+*.swp
+*.tmp
+
+# === Exceptions for Safe Configuration Examples ===
+!/src/main/resources/application-example.properties
